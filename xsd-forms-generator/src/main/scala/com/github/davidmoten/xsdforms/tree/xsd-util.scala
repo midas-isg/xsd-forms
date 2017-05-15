@@ -26,6 +26,7 @@ private[xsdforms] object XsdUtil {
   //TODO use enumeration
   val XsdDateTime = XsdDatatype("dateTime")
   val XsdDate = XsdDatatype("date")
+
   val XsdTime = XsdDatatype("time")
   val XsdInteger = XsdDatatype("integer", Some("\\d+"))
   val XsdInt = XsdDatatype("int", Some("-?\\d+"))
@@ -40,7 +41,7 @@ private[xsdforms] object XsdUtil {
   val XsdDecimal = XsdDatatype("decimal", Some("-?\\d+(\\.\\d*)?"))
   val XsdBoolean = XsdDatatype("boolean")
   val XsdString = XsdDatatype("string")
-  val XsdAnyUri = XsdDatatype("string");
+  val XsdAnyUri = XsdDatatype("anyURI");
   val XsdToken = XsdDatatype("token");
   val XsdDouble = XsdDatatype("double", Some("-?\\d(\\.\\d*)?([eE]-?\\d+)?"))
   val XsdFloat = XsdDatatype("float", Some("-?\\d(\\.\\d*)?([eE]-?\\d+)?"))
