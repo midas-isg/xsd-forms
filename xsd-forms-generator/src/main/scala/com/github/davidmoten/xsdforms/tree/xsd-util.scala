@@ -40,6 +40,8 @@ private[xsdforms] object XsdUtil {
   val XsdDecimal = XsdDatatype("decimal", Some("-?\\d+(\\.\\d*)?"))
   val XsdBoolean = XsdDatatype("boolean")
   val XsdString = XsdDatatype("string")
+  val XsdAnyUri = XsdDatatype("string");
+  val XsdToken = XsdDatatype("token");
   val XsdDouble = XsdDatatype("double", Some("-?\\d(\\.\\d*)?([eE]-?\\d+)?"))
   val XsdFloat = XsdDatatype("float", Some("-?\\d(\\.\\d*)?([eE]-?\\d+)?"))
   val XsdAttribute = XsdDatatype("attribute", None)

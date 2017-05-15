@@ -141,7 +141,7 @@ Then go to [http://localhost:8080](http://localhost:8080) and fill in the form.
 Add the following maven dependency to your pom.xml (you will need to have built the project from source so that the dependency is available in your local repository):
 ```
 <dependency>
-  <groupId>com.github.davidmoten.xsdforms</groupId>
+  <groupId>edu.pitt.isg</groupId>
   <artifactId>xsd-forms-generator</artifactId>
   <version>0.2.1</version>
 </dependency>
@@ -161,7 +161,7 @@ or
 
 ```
 <plugin>
-  <groupId>com.github.davidmoten.xsdforms</groupId>
+  <groupId>edu.pitt.isg</groupId>
   <artifactId>xsd-forms-maven-plugin</artifactId>
   <version>0.2.1</version>
   <executions>

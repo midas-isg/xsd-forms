@@ -56,7 +56,7 @@ private[xsdforms] class SchemaTraversor(s: Schema, rootElement: Option[String], 
       ++ (topLevelSimpleTypes.map(x => (qn(targetNs, x.name.get), x)))).toMap;
 
   private val baseTypes =
-    Set(XsdDecimal, XsdString, XsdInteger, XsdDate, XsdDateTime, XsdTime,
+    Set(XsdDecimal, XsdAnyUri, XsdToken, XsdString, XsdInteger, XsdDate, XsdDateTime, XsdTime,
       XsdBoolean, XsdInt, XsdLong, XsdShort, XsdPositiveInteger,
       XsdNegativeInteger, XsdNonPositiveInteger, XsdNonNegativeInteger,
       XsdDouble, XsdFloat)
