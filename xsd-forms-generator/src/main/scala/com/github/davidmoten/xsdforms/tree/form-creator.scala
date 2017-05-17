@@ -395,7 +395,7 @@ private[xsdforms] class FormCreator(override val options: Options,
         id = Some(getRepeatButtonId(e.number, instances)),
         classes = List(ClassRepeatButton, ClassWhite, ClassSmall),
         content = Some(e.get(Annotation.RepeatLabel)
-          .getOrElse("+"))).closeTag
+          .getOrElse("Add " + e.name.getOrElse("element")))).closeTag
       html.div(classes = List(ClassClear)).closeTag
     }
   }
