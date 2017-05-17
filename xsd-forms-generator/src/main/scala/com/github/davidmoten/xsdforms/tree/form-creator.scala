@@ -63,7 +63,7 @@ private[xsdforms] class FormCreator(override val options: Options,
       .div(id = Some(getItemEnclosingId(e.number, instances add 1)),
         classes = List(ClassSequence) ++ e.visibility)
     nonRepeatingTitle(e, instances)
-    minOccursZeroCheckbox(e, instances)
+    //minOccursZeroCheckbox(e, instances)
     repeatButton(e, instances)
     for (instanceNo <- e.repeats) {
       doInstance(node, instances, instanceNo)
@@ -402,9 +402,9 @@ private[xsdforms] class FormCreator(override val options: Options,
 
   private def repeatingEnclosing(e: ElementWrapper, instances: Instances) {
     val id = Ids.getRepeatingEnclosingId(e.number, instances)
-    var str = instances.toString
-    str = str.substring(str.lastIndexOf("_") + 1, str.length)
-    if (str.toInt > 1)
+    val instStr = instances.toString
+    val instIdx = instStr.substring(instStr.lastIndexOf("_") + 1, instStr.length).toInt
+    if (instIdx > 1)
       html.div(
         id = Some(id),
         classes = List(ClassRepeatingEnclosing, ClassInvisible))
