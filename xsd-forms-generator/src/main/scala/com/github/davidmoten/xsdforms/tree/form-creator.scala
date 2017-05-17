@@ -402,9 +402,16 @@ private[xsdforms] class FormCreator(override val options: Options,
 
   private def repeatingEnclosing(e: ElementWrapper, instances: Instances) {
     val id = Ids.getRepeatingEnclosingId(e.number, instances)
-    html.div(
-      id = Some(id),
-      classes = List(ClassRepeatingEnclosing))
+    var str = instances.toString
+    str = str.substring(str.lastIndexOf("_") + 1, str.length)
+    if (str.toInt > 1)
+      html.div(
+        id = Some(id),
+        classes = List(ClassRepeatingEnclosing, ClassInvisible))
+    else
+      html.div(
+        id = Some(id),
+        classes = List(ClassRepeatingEnclosing))
     if (e.minOccurs.intValue > 0 && instances.last > e.minOccurs.intValue)
       addScript(JS().line("  $('#%s').hide();", id))
   }

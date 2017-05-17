@@ -132,7 +132,7 @@ private[tree] object ElementWrapper {
 
   implicit def unwrap(wrapped: ElementWrapper): Element = wrapped.element
 
-  val NumInstancesForMultiple = 5
+  val NumInstancesForMultiple = 20
 
   def valById(id: String) = "encodedValueById(\"" + id + "\")"
 
