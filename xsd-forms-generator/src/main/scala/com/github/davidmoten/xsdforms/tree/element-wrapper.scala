@@ -21,7 +21,7 @@ private[tree] case class ElementWrapper(element: Element,
   private val e = element
 
   def hasButton =
-    e.maxOccurs != "1" && e.minOccurs.toString != e.maxOccurs
+    e.minOccurs != "0" && e.minOccurs.toString != e.maxOccurs
 
   def get(key: XsdFormsAnnotation) =
     key.from(this)

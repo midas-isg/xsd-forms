@@ -42,9 +42,10 @@ private[xsdforms] class FormCreator(override val options: Options,
   addXmlExtractScriptlet(tree, new Instances)
 
   private def doNode(node: Node, instances: Instances) {
+    val parent = node
     node match {
-      case n: NodeBasic => doNode(n, instances)
-      case n: NodeSequence => doNode(n, instances)
+      case n: NodeBasic => doNode(n, instances, parent)
+      case n: NodeSequence => doNode(n, instances, parent)
       case n: NodeChoice => doNode(n, instances)
     }
   }
@@ -57,16 +58,16 @@ private[xsdforms] class FormCreator(override val options: Options,
     }
   }
 
-  private def doNode(node: NodeSequence, instances: Instances) {
+  private def doNode(node: NodeSequence, instances: Instances, parent: Node) {
     val e = node.element
     html
       .div(id = Some(getItemEnclosingId(e.number, instances add 1)),
         classes = List(ClassSequence) ++ e.visibility)
     nonRepeatingTitle(e, instances)
-    //minOccursZeroCheckbox(e, instances)
+    minOccursZeroCheckbox(e, instances)
     repeatButton(e, instances)
     for (instanceNo <- e.repeats) {
-      doInstance(node, instances, instanceNo)
+      doInstanceWithName(node, instances, instanceNo, parent.element.name.getOrElse("x"))
     }
     html closeTag
 
@@ -76,6 +77,31 @@ private[xsdforms] class FormCreator(override val options: Options,
   private def doInstance(node: NodeSequence, instances: Instances, instanceNo: Int) {
     val e = node.element
     val label = e.get(Annotation.Label)
+    val legend = e.get(Annotation.Legend)
+    val usesFieldset = legend.isDefined
+    val instNos = instances add instanceNo
+    repeatingEnclosing(e, instNos)
+    if (label.isDefined)
+      html
+        .div(classes = List(ClassSequenceLabel), content = label).closeTag
+    html.div(id = Some(idPrefix + "sequence-" + e.number + InstanceDelimiter + instanceNo),
+      classes = List(ClassSequenceContent))
+    addRemoveButton(e, instNos)
+    if (usesFieldset)
+      html.fieldset(legend = legend, classes = List(ClassFieldset), id =
+        Some(idPrefix + "fieldset-" + e.number + InstanceDelimiter + instanceNo))
+
+    node.children.foreach(x => doNode(x, instNos))
+
+    if (usesFieldset)
+      html.closeTag
+
+    html closeTag 2
+  }
+
+  private def doInstanceWithName(node: NodeSequence, instances: Instances, instanceNo: Int, name: String) {
+    val e = node.element
+    val label = Option(name)
     val legend = e.get(Annotation.Legend)
     val usesFieldset = legend.isDefined
     val instNos = instances add instanceNo
@@ -164,8 +190,9 @@ private[xsdforms] class FormCreator(override val options: Options,
     html.closeTag
   }
 
-  private def doNode(node: NodeBasic, instances: Instances) {
+  private def doNode(node: NodeBasic, instances: Instances, parent: Node) {
     val e = node.element
+    val required = parent.element.minOccurs.intValue > 0
     nonRepeatingSimpleType(e, instances)
     repeatButton(e, instances)
     for (instanceNo <- e.repeats) {
@@ -175,7 +202,7 @@ private[xsdforms] class FormCreator(override val options: Options,
       addRemoveButton(e, instNos)
       itemBefore(e)
       addNumberLabel(node, e.number, instNos)
-      simpleType(node, instNos)
+      simpleType(node, instNos, required)
       html.closeTag
       addError(e, instNos)
       html closeTag
@@ -344,7 +371,7 @@ private[xsdforms] class FormCreator(override val options: Options,
 
   private def minOccursZeroCheckbox(e: ElementWrapper, instances: Instances) {
     if (e.isMinOccursZero) {
-      html.div(classes = List(ClassMinOccursZeroContainer))
+      html.div(classes = List(ClassMinOccursZeroContainer, ClassInvisible))
       html
         .div(
           classes = List(ClassMinOccursZeroLabel),
@@ -356,7 +383,7 @@ private[xsdforms] class FormCreator(override val options: Options,
         name = getMinOccursZeroName(e.number, instances),
         classes = List(ClassMinOccursZero),
         typ = Some("checkbox"),
-        checked = None,
+        checked = Option(true),
         value = None,
         number = Some(e.number))
         .closeTag
@@ -404,7 +431,7 @@ private[xsdforms] class FormCreator(override val options: Options,
     val id = Ids.getRepeatingEnclosingId(e.number, instances)
     val instStr = instances.toString
     val instIdx = instStr.substring(instStr.lastIndexOf("_") + 1, instStr.length).toInt
-    if (instIdx > 1)
+    if (instIdx > 0 && e.isMinOccursZero)
       html.div(
         id = Some(id),
         classes = List(ClassRepeatingEnclosing, ClassInvisible))
@@ -424,7 +451,7 @@ private[xsdforms] class FormCreator(override val options: Options,
     nonRepeatingTitle(e, instances)
   }
 
-  private def simpleType(node: NodeBasic, instances: Instances) {
+  private def simpleType(node: NodeBasic, instances: Instances, required: Boolean) {
     val e = node.element
 
     val r = restriction(node)
@@ -448,7 +475,7 @@ private[xsdforms] class FormCreator(override val options: Options,
       createEnumerationTestScriptlet(node, instances),
       createBasePatternTestScriptlet(qn),
       createFacetTestScriptlet(r),
-      createLengthTestScriptlet(r),
+      createLengthTestScriptlet(r, required),
       createCanExcludeScriptlet(e),
       createClosingScriptlet(e, qn, instances))
 
@@ -573,7 +600,7 @@ private[xsdforms] class FormCreator(override val options: Options,
   private def addRemoveButton(e: ElementWrapper, instances: Instances) {
     val removeButtonId = getRemoveButtonId(e.number, instances)
     val canRemove =
-      (instances.last != 1 && e.maxOccurs != e.minOccurs.toString)
+      (instances.last != e.minOccurs && e.maxOccurs != e.minOccurs.toString)
     if (canRemove)
       html
         .div(classes = List(ClassRemoveButtonContainer))
@@ -828,7 +855,7 @@ private[xsdforms] class FormCreator(override val options: Options,
 
   private def addMaxOccursScriptlet(e: ElementWrapper,
     instances: Instances) {
-    if (e.isMultiple) {
+    if (e.isMultiple || e.hasButton) {
       val repeatButtonId = getRepeatButtonId(e.number, instances)
       val js = JS()
         .line("  $('#%s').click( function() {", repeatButtonId)
@@ -918,16 +945,17 @@ private[xsdforms] class FormCreator(override val options: Options,
     else ""
   }
 
-  private def createLengthTestScriptlet(r: Restriction) = {
-    r.simpleRestrictionModelSequence3
+  private def createLengthTestScriptlet(r: Restriction, parentOptional: Boolean) = {
+    if (true)
+      r.simpleRestrictionModelSequence3
       .facetsOption2
       .seq
       .flatMap(f => {
         val start = """
-|  //length test
-|  if (v.val().length """
+                      |  //length test
+                      |  if (v.val().length """
         val finish = """)
-|    ok = false;"""
+                       |    ok = false;"""
         f match {
           case DataRecord(xs, Some("minLength"), x: NumFacet) =>
             Some(start + "<" + x.valueAttribute + finish)
@@ -938,6 +966,20 @@ private[xsdforms] class FormCreator(override val options: Options,
           case _ => None
         }
       }).mkString("")
+    else
+      r.simpleRestrictionModelSequence3
+        .facetsOption2
+        .seq
+        .flatMap(f => {
+          val start = """
+                        |  //length test
+                        |  if (v.val().length """
+          val finish = """)
+                         |    ok = false;"""
+          f match {
+            case _ => None
+          }
+        }).mkString("")
   }
 
   private def createCanExcludeScriptlet(e: Element) =
@@ -1017,6 +1059,18 @@ private[xsdforms] class FormCreator(override val options: Options,
 
   private def getRepeatingEnclosingId(e: ElementWrapper, instances: Instances): String =
     Ids.getRepeatingEnclosingId(e.number, instances)
+
+  private def toTitle(str: String): String = {
+    val strArr = str.split("(?=[A-Z][^A-Z])")
+    for (e <- strArr) e.toLowerCase
+    return strArr.mkString("").capitalize
+  }
+
+  private def toLowercaseTitle(str: String): String = {
+    val strArr = str.split("(?=[A-Z][^A-Z])")
+    for (e <- strArr) e.toLowerCase
+    return strArr.mkString("")
+  }
 
   def template = io.Source.fromInputStream(
     getClass.getResourceAsStream("/template.html")).mkString

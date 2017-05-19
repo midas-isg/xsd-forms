@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <schema xmlns:tns="http://mdc.isg.pitt.edu/v1_0/" xmlns="http://www.w3.org/2001/XMLSchema"
-        targetNamespace="http://mdc.isg.pitt.edu/v1_0/" elementFormDefault="qualified" attributeFormDefault="qualified">
-    
+        targetNamespace="http://mdc.isg.pitt.edu/v1_0/" elementFormDefault="qualified" attributeFormDefault="qualified"
+        xmlns:i="http://moten.david.org/xsd-forms">
+
     <element name="DiseaseTransmissionModel" type="tns:DiseaseTransmissionModel"/>
     <element name="PopulationDynamicsModel" type="tns:PopulationDynamicsModel"/>
     <element name="DataFormatConverters" type="tns:DataFormatConverters"/>
@@ -35,7 +36,18 @@
             <element name="webApplication" type="tns:nonZeroLengthString" maxOccurs="unbounded"
                      minOccurs="0"/>
             <element name="license" type="tns:nonZeroLengthString" maxOccurs="1"
-                     minOccurs="0"/>
+                     minOccurs="0">
+                <annotation i:label="Software license"
+                               i:title="'title' for this question"
+                               i:before="'before' might be used for a descriptive preamble to a question"
+                               i:after="'after' might be used for some informative remarks about the topic and appears after the validation message"
+                               i:description="'description' goes here to describe the input format for example"
+                               i:validation="'validation' is the message to indicate an invalid response'"
+                               i:repeatLabel="'repeatLabel' click to repeat question"
+                               i:removeLabel="'removeLabel' click to remove repeat"
+                               i:maxRepeats="3" />
+            </element>
+
             <element name="source" type="tns:nonZeroLengthString" maxOccurs="1" minOccurs="0"/>
             <element name="developers" type="tns:nonZeroLengthString" maxOccurs="unbounded"
                      minOccurs="0"/>
