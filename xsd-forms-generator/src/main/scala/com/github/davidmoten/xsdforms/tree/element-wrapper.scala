@@ -54,7 +54,6 @@ private[tree] case class ElementWrapper(element: Element,
   def repeats: Range = 1 to numInstances
 
   private def numInstances: Int = {
-
     val n = if (e.maxOccurs == "unbounded")
       NumInstancesForMultiple
     else
@@ -132,7 +131,7 @@ private[tree] object ElementWrapper {
 
   implicit def unwrap(wrapped: ElementWrapper): Element = wrapped.element
 
-  val NumInstancesForMultiple = 5
+  var NumInstancesForMultiple = 10
 
   def valById(id: String) = "encodedValueById(\"" + id + "\")"
 
