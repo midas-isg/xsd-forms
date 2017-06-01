@@ -191,7 +191,7 @@ private[tree] object ElementWrapper {
   def getLabel(node: Node, typ: Option[SimpleType]) =
     {
       val e = node.element
-      val label = e.getLabelFromNameOrAnnotation
+      val label = e.getLabelFromNameOrAnnotation.split("(?<=[a-z])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])").mkString(" ")
 
       val mustOccur = e.minOccurs.intValue > 0
       val isText = e.typeValue match {

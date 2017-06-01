@@ -101,7 +101,14 @@ private[xsdforms] class FormCreator(override val options: Options,
 
   private def doInstanceWithName(node: NodeSequence, instances: Instances, instanceNo: Int, name: String) {
     val e = node.element
-    val label = Option(name)
+    val label = Option(Option(name)
+      .getOrElse("element")
+      .split("(?<=[a-z])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])")
+      .mkString(" ")
+      .toLowerCase()
+      .split(" ")
+      .map(_.capitalize)
+      .mkString(" "))
     val legend = e.get(Annotation.Legend)
     val usesFieldset = legend.isDefined
     val instNos = instances add instanceNo
@@ -420,9 +427,16 @@ private[xsdforms] class FormCreator(override val options: Options,
     if (e.hasButton) {
       html.div(
         id = Some(getRepeatButtonId(e.number, instances)),
-        classes = List(ClassRepeatButton, ClassWhite, ClassSmall),
+        classes = List(ClassBsBtn, ClassBsBtnSm, ClassBsBtnDefault),
         content = Some(e.get(Annotation.RepeatLabel)
-          .getOrElse("Add " + e.name.getOrElse("element")))).closeTag
+          .getOrElse("Add " + e.name.getOrElse("element"))
+          .split("(?<=[a-z])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])")
+          .mkString(" ")
+          .toLowerCase()
+          .split(" ")
+          .map(_.capitalize)
+          .mkString(" ")))
+          .closeTag
       html.div(classes = List(ClassClear)).closeTag
     }
   }
@@ -606,7 +620,7 @@ private[xsdforms] class FormCreator(override val options: Options,
         .div(classes = List(ClassRemoveButtonContainer))
         .div(
           id = Some(getRemoveButtonId(e.number, instances)),
-          classes = List(ClassRemoveButton, ClassWhite, ClassSmall),
+          classes = List(ClassBsBtn, ClassBsBtnXs, ClassBsBtnDefault),
           content = Some(e.get(Annotation.RemoveLabel)
             .getOrElse("-")))
         .closeTag

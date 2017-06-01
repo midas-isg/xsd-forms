@@ -38,4 +38,8 @@ private[xsdforms] object Css {
   val ClassMinOccursZero = "min-occurs-zero"
   val ClassMinOccursZeroContainer = "min-occurs-zero-container"
   val ClassMinOccursZeroLabel = "min-occurs-zero-label"
+  val ClassBsBtn = "btn"
+  val ClassBsBtnSm = "btn-sm"
+  val ClassBsBtnXs = "btn-xs"
+  val ClassBsBtnDefault = "btn-default"
 }
