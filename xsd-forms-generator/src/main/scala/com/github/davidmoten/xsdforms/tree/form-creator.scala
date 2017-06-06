@@ -1087,7 +1087,7 @@ private[xsdforms] class FormCreator(override val options: Options,
   }
 
   def template = io.Source.fromInputStream(
-    getClass.getResourceAsStream("/template.html")).mkString
+    getClass.getResourceAsStream("/mdc-template.html")).mkString
 
 }
 
