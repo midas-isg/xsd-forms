@@ -263,8 +263,8 @@
                         xmlString = document.getElementById("submit-comments").getElementsByTagName("pre")[0].textContent;
                         if (XSD_FORM.validate()) {
                             $.post(
-                                addEntryPath,
-                                xmlString,
+                                addEntryPath + getQueryParamString(),
+                                {'xmlString': xmlString},
                                 function onSuccess(data, status, xhr) {
                                     console.info(data);
                                     console.info(status);
@@ -281,6 +281,13 @@
                 }
             });
         });
+        function getQueryParamString() {
+            if("${datasetType}" != "custom") {
+                return "";
+            } else {
+                return "?datasetType=${datasetType}&customValue=${customValue}";
+            }
+        }
     </script>
 
 </head>
