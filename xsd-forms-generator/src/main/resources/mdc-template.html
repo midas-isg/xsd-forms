@@ -225,6 +225,7 @@
 
             $('#submit').click( function () {
                 if (validate()) {
+                    window.onbeforeunload = null;
                     var xml = getXml();
                     processXml(xml);
                 }
