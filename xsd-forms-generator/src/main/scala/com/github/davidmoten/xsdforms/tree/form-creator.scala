@@ -659,7 +659,7 @@ private[xsdforms] class FormCreator(override val options: Options,
     val js = JS()
     js.line("  var %s = function addChoiceChange%sinstance%s() {",
       choiceChangeFunction, number.toString, instances)
-      .line("    $(':input[@name=%s]').change(function() {",
+      .line("    $(':input[name=%s]').change(function() {",
         getChoiceItemName(number, instances))
       .line("      var checked = $(':input[name=%s]:checked').attr('id');",
         getChoiceItemName(number, instances))
