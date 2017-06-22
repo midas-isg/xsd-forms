@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metadata>
+  <plugins>
+    <plugin>
+      <name>file-list-maven-plugin</name>
+      <prefix>file-list</prefix>
+      <artifactId>file-list-maven-plugin</artifactId>
+    </plugin>
+    <plugin>
+      <name>xsd-forms-maven-plugin</name>
+      <prefix>xsd-forms</prefix>
+      <artifactId>xsd-forms-maven-plugin</artifactId>
+    </plugin>
+  </plugins>
+</metadata>

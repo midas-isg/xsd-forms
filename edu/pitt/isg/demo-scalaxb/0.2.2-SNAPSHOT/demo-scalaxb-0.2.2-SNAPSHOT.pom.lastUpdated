@@ -1,0 +1,12 @@
+#NOTE: This is an Aether internal implementation file, its format can be changed without prior notice.
+#Thu Jun 22 12:08:11 EDT 2017
+https\://raw.githubusercontent.com/midas-isg/xsd-forms/1.0-repo/.error=
+https\://oss.sonatype.org/content/repositories/snapshots/.error=
+https\://raw.githubusercontent.com/midas-isg/xsd-forms/1.0-repo/.lastUpdated=1498146720727
+/.error=Could not transfer artifact edu.pitt.isg\:demo-scalaxb\:pom\:0.2.2-SNAPSHOT from/to scalaxb (/)\: Cannot access / with type default using the available connector factories\: BasicRepositoryConnectorFactory
+https\://raw.githubusercontent.com/midas-isg/xsd-forms/tree/1.0-repo/.lastUpdated=1498146300696
+https\://oss.sonatype.org/content/repositories/snapshots/.lastUpdated=1498147691992
+@default-scalaxb-/.lastUpdated=1498146102349
+https\://raw.githubusercontent.com/midas-isg/object-serializer/1.0-repo/.error=
+https\://raw.githubusercontent.com/midas-isg/xsd-forms/tree/1.0-repo/.error=
+https\://raw.githubusercontent.com/midas-isg/object-serializer/1.0-repo/.lastUpdated=1498145939821
