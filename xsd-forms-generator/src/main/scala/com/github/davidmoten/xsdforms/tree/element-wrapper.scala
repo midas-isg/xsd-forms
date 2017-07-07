@@ -211,7 +211,7 @@ private[tree] object ElementWrapper {
               !isText
           })
       }
-      if (mandatory) label + "<em>*</em>"
+      if (mandatory && isText == true) label + "<em>*</em>"
       else label
     }
 

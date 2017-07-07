@@ -101,14 +101,17 @@ private[xsdforms] class FormCreator(override val options: Options,
 
   private def doInstanceWithName(node: NodeSequence, instances: Instances, instanceNo: Int, name: String) {
     val e = node.element
-    val label = Option(Option(name)
-      .getOrElse("element")
-      .split("(?<=[a-z])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])")
-      .mkString(" ")
-      .toLowerCase()
-      .split(" ")
-      .map(_.capitalize)
-      .mkString(" "))
+    var label = e.get(Annotation.Label)
+    if (!label.isDefined) {
+      label = Option(Option(name)
+        .getOrElse("element")
+        .split("(?<=[a-z])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])")
+        .mkString(" ")
+        .toLowerCase()
+        .split(" ")
+        .map(_.capitalize)
+        .mkString(" "))
+    }
     val legend = e.get(Annotation.Legend)
     val usesFieldset = legend.isDefined
     val instNos = instances add instanceNo
@@ -425,11 +428,15 @@ private[xsdforms] class FormCreator(override val options: Options,
 
   private def repeatButton(e: ElementWrapper, instances: Instances) {
     if (e.hasButton) {
+      var label = e.name.getOrElse("element")
+//      if (label.last.equals('s')) {
+//        label = label.replaceAll("(?<!ie)s$", "\\(s\\)")
+//      }
       html.div(
         id = Some(getRepeatButtonId(e.number, instances)),
         classes = List(ClassBsBtn, ClassBsBtnSm, ClassBsBtnDefault),
         content = Some(e.get(Annotation.RepeatLabel)
-          .getOrElse("Add " + e.name.getOrElse("element"))
+          .getOrElse("Add " + label)
           .split("(?<=[a-z])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])")
           .mkString(" ")
           .toLowerCase()

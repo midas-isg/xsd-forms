@@ -30,8 +30,8 @@ package com.github.davidmoten.xsdforms {
       println("generating person form")
       generate(
         idPrefix = "a-",
-        schemaInputStream = TstUtil.getClass().getResourceAsStream("/dats.xsd"),
-        rootElement = "Dataset",
+        schemaInputStream = TstUtil.getClass().getResourceAsStream("/software.xsd"),
+        rootElement = "DiseaseTransmissionModel",
         outputFile = new File("target/generated-webapp/dats-form.html"))
     }
 
