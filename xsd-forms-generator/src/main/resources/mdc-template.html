@@ -243,9 +243,15 @@
             $("#form").submit(function () { return false; }); // so it won't submit
 
             //EXTRA_SCRIPT
+            var keyPressed = false;
+            document.onkeypress = function (e) {
+                keyPressed = true;
+            };
 
             window.onbeforeunload = function() {
-                return "Are you sure you want to leave this page?";
+                if(keyPressed) {
+                    return "Are you sure you want to leave this page?";
+                }
             };
 
             $(document).ready(function () {
