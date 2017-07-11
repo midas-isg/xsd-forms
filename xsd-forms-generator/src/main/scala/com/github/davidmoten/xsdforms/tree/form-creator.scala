@@ -428,21 +428,25 @@ private[xsdforms] class FormCreator(override val options: Options,
 
   private def repeatButton(e: ElementWrapper, instances: Instances) {
     if (e.hasButton) {
-      var label = e.name.getOrElse("element")
+      var label = e.get(Annotation.Label)
+      if (!label.isDefined) {
+        label = Option(e.name
+          .getOrElse("element")
+          .split("(?<=[a-z])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])")
+          .mkString(" ")
+          .toLowerCase()
+          .split(" ")
+          .map(_.capitalize)
+          .mkString(" "))
+      }
 //      if (label.last.equals('s')) {
 //        label = label.replaceAll("(?<!ie)s$", "\\(s\\)")
 //      }
       html.div(
         id = Some(getRepeatButtonId(e.number, instances)),
         classes = List(ClassBsBtn, ClassBsBtnSm, ClassBsBtnDefault),
-        content = Some(e.get(Annotation.RepeatLabel)
-          .getOrElse("Add " + label)
-          .split("(?<=[a-z])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])")
-          .mkString(" ")
-          .toLowerCase()
-          .split(" ")
-          .map(_.capitalize)
-          .mkString(" ")))
+        content = Option(e.get(Annotation.RepeatLabel)
+          .getOrElse("Add " + label.get)))
           .closeTag
       html.div(classes = List(ClassClear)).closeTag
     }
