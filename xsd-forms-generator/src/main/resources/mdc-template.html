@@ -243,14 +243,18 @@
             $("#form").submit(function () { return false; }); // so it won't submit
 
             //EXTRA_SCRIPT
-            var keyPressed = false;
-            document.onkeypress = function (e) {
-                keyPressed = true;
-            };
-
             window.onbeforeunload = function() {
-                if(keyPressed) {
+                var empty_inputs=0;
+                $('.form :text').each(function(){
+                    if( $.trim($(this).val()) != "" ) {
+                        empty_inputs++;
+                    }
+                });
+
+                if (empty_inputs>0) {
                     return "Are you sure you want to leave this page?";
+                } else {
+                    window.onbeforeunload = null;
                 }
             };
 
