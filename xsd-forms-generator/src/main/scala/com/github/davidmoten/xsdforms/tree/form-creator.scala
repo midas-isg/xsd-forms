@@ -1,13 +1,15 @@
 package com.github.davidmoten.xsdforms.tree
 
 import javax.xml.namespace.QName
+
 import scalaxb._
 import com.github.davidmoten.xsdforms.presentation._
 import Css._
 import com.github.davidmoten.xsdforms.tree.html._
 import com.github.davidmoten.util.JS
 import com.github.davidmoten.xsdforms.tree.html.Html
-import com.github.davidmoten.xsdforms.{Configuration,Options}
+import com.github.davidmoten.xsdforms.{Configuration, Options}
+import com.sun.org.apache.xerces.internal.dom.ParentNode
 
 /**
  * **************************************************************
@@ -37,16 +39,15 @@ private[xsdforms] class FormCreator(override val options: Options,
   private val Plus = " + "
 
   //process the abstract syntax tree
-  doNode(tree, new Instances)
+  doNode(tree, new Instances, null)
 
   addXmlExtractScriptlet(tree, new Instances)
 
-  private def doNode(node: Node, instances: Instances) {
-    val parent = node
+  private def doNode(node: Node, instances: Instances, path: String) {
     node match {
-      case n: NodeBasic => doNode(n, instances, parent)
-      case n: NodeSequence => doNode(n, instances, parent)
-      case n: NodeChoice => doNode(n, instances)
+      case n: NodeBasic => doNode(n, instances, path)
+      case n: NodeSequence => doNode(n, instances, path, node)
+      case n: NodeChoice => doNode(n, instances, path)
     }
   }
 
@@ -58,7 +59,7 @@ private[xsdforms] class FormCreator(override val options: Options,
     }
   }
 
-  private def doNode(node: NodeSequence, instances: Instances, parent: Node) {
+  private def doNode(node: NodeSequence, instances: Instances, path: String, parentNode: Node) {
     val e = node.element
     html
       .div(id = Some(getItemEnclosingId(e.number, instances add 1)),
@@ -67,7 +68,7 @@ private[xsdforms] class FormCreator(override val options: Options,
     minOccursZeroCheckbox(e, instances)
     repeatButton(e, instances)
     for (instanceNo <- e.repeats) {
-      doInstanceWithName(node, instances, instanceNo, parent.element.name.getOrElse("x"))
+      doInstanceWithName(node, instances, instanceNo, path, parentNode.element.name.getOrElse("x"))
     }
     html closeTag
 
@@ -91,7 +92,7 @@ private[xsdforms] class FormCreator(override val options: Options,
       html.fieldset(legend = legend, classes = List(ClassFieldset), id =
         Some(idPrefix + "fieldset-" + e.number + InstanceDelimiter + instanceNo))
 
-    node.children.foreach(x => doNode(x, instNos))
+    node.children.foreach(x => doNode(x, instNos, node.element.name.getOrElse("x")))
 
     if (usesFieldset)
       html.closeTag
@@ -99,7 +100,7 @@ private[xsdforms] class FormCreator(override val options: Options,
     html closeTag 2
   }
 
-  private def doInstanceWithName(node: NodeSequence, instances: Instances, instanceNo: Int, name: String) {
+  private def doInstanceWithName(node: NodeSequence, instances: Instances, instanceNo: Int, partialPath: String, name: String) {
     val e = node.element
     var label = e.get(Annotation.Label)
     if (!label.isDefined) {
@@ -126,7 +127,11 @@ private[xsdforms] class FormCreator(override val options: Options,
       html.fieldset(legend = legend, classes = List(ClassFieldset), id =
         Some(idPrefix + "fieldset-" + e.number + InstanceDelimiter + instanceNo))
 
-    node.children.foreach(x => doNode(x, instNos))
+    var path = node.element.name.getOrElse("x")
+    if(partialPath != null) {
+      path = partialPath + "," + path + "-" + e.isMultiple
+    }
+    node.children.foreach(x => doNode(x, instNos, path))
 
     if (usesFieldset)
       html.closeTag
@@ -134,7 +139,7 @@ private[xsdforms] class FormCreator(override val options: Options,
     html closeTag 2
   }
 
-  private def doNode(node: NodeChoice, instances: Instances) {
+  private def doNode(node: NodeChoice, instances: Instances, parent: String) {
     val e = node.element
     //TODO choiceInline not used!
     val choiceInline = displayChoiceInline(node.choice)
@@ -192,7 +197,7 @@ private[xsdforms] class FormCreator(override val options: Options,
       case (n, index) => {
         html.div(id = Some(choiceContentId(e.number, (index + 1), instNos)),
           classes = List(ClassInvisible))
-        doNode(n, instNos)
+        doNode(n, instNos, node.element.name.getOrElse("x"))
         html.closeTag
       }
     }
@@ -200,9 +205,9 @@ private[xsdforms] class FormCreator(override val options: Options,
     html.closeTag
   }
 
-  private def doNode(node: NodeBasic, instances: Instances, parent: Node) {
+  private def doNode(node: NodeBasic, instances: Instances, parent: String) {
     val e = node.element
-    val required = parent.element.minOccurs.intValue > 0
+    val required = node.element.minOccurs.intValue > 0
     nonRepeatingSimpleType(e, instances)
     repeatButton(e, instances)
     for (instanceNo <- e.repeats) {
@@ -212,7 +217,7 @@ private[xsdforms] class FormCreator(override val options: Options,
       addRemoveButton(e, instNos)
       itemBefore(e)
       addNumberLabel(node, e.number, instNos)
-      simpleType(node, instNos, required)
+      simpleType(node, instNos, required, parent)
       html.closeTag
       addError(e, instNos)
       html closeTag
@@ -476,14 +481,40 @@ private[xsdforms] class FormCreator(override val options: Options,
     nonRepeatingTitle(e, instances)
   }
 
-  private def simpleType(node: NodeBasic, instances: Instances, required: Boolean) {
+  private def simpleType(node: NodeBasic, instances: Instances, required: Boolean, parent: String) {
     val e = node.element
 
     val r = restriction(node)
 
     val qn = toQN(r)
 
-    addInput(e, qn, r, instances)
+    val path = parent + "," + e.name.getOrElse()
+    val splitPath = path.split(",")
+    var pathWithInstances = ""
+    for(i <- 1 until splitPath.length) {
+      val idx = instances.heirarchy(i) - 1
+      val nameAndIsMultiple = splitPath(i).split("-")
+      val name = nameAndIsMultiple(0)
+
+      var isMultiple = "false"
+      if(nameAndIsMultiple.length > 1) {
+        isMultiple = nameAndIsMultiple(1)
+      }
+
+      if(pathWithInstances.length > 0) {
+        pathWithInstances += "['" + name + "']"
+      } else {
+        pathWithInstances = "['" + name + "']"
+      }
+
+      if(isMultiple.equals("true") || (i == splitPath.length - 1 && e.isMultiple)) {
+        pathWithInstances += "[" + idx + "]"
+      }
+    }
+
+    println(pathWithInstances)
+
+    addInput(e, qn, r, instances, pathWithInstances)
 
     addDescription(e)
 
@@ -512,12 +543,12 @@ private[xsdforms] class FormCreator(override val options: Options,
   }
 
   private def addInput(e: ElementWrapper, qn: QN, r: Restriction,
-    instances: Instances) {
+    instances: Instances, parent: String) {
 
     if (isEnumeration(r))
       addEnumeration(e, r, instances)
     else
-      addTextOrCheckbox(e, r, getExtraClasses(qn), instances)
+      addTextOrCheckbox(e, r, getExtraClasses(qn), instances, parent)
 
     addWidthScript(e, instances)
     addCssScript(e, instances)
@@ -525,11 +556,11 @@ private[xsdforms] class FormCreator(override val options: Options,
 
   private def addTextOrCheckbox(
     e: ElementWrapper, r: Restriction,
-    extraClasses: String, instances: Instances) {
+    extraClasses: String, instances: Instances, parent: String) {
     if (e.isTextArea)
       addTextArea(e, extraClasses, instances)
     else
-      addTextFieldOrCheckbox(e, r, extraClasses, instances)
+      addTextFieldOrCheckbox(e, r, extraClasses, instances, parent)
   }
 
   private def addTextArea(e: ElementWrapper, extraClasses: String, instances: Instances) {
@@ -543,7 +574,7 @@ private[xsdforms] class FormCreator(override val options: Options,
       .closeTag
   }
 
-  private def addTextFieldOrCheckbox(e: ElementWrapper, r: Restriction, extraClasses: String, instances: Instances) {
+  private def addTextFieldOrCheckbox(e: ElementWrapper, r: Restriction, extraClasses: String, instances: Instances, parent: String) {
     val inputType = getInputType(r)
     val itemId = getItemId(e.number, instances)
     //text or checkbox
@@ -557,7 +588,8 @@ private[xsdforms] class FormCreator(override val options: Options,
       typ = Some(inputType.name),
       checked = None,
       value = v,
-      number = Some(e.number))
+      number = Some(e.number),
+      path = Some(parent))
       .closeTag
     addScript(JS().line("  $('#%s').prop('checked',%s);",
       itemId, isChecked + "").line)
