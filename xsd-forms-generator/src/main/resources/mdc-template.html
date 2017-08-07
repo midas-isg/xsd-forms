@@ -227,10 +227,16 @@
             }
 
             $('#submit').click( function () {
+                $("#submit").addClass("disabled");
+                $("#submit-spinner").show();
+
                 if (validate()) {
                     window.onbeforeunload = null;
                     var xml = getXml();
                     processXml(xml);
+                } else {
+                    $("#submit").removeClass("disabled");
+                    $("#submit-spinner").hide();
                 }
             });
 
@@ -327,15 +333,18 @@
                                     console.info(status);
                                     console.info(xhr);
                                     alert("An email request has been sent to the administrator. Approval is pending.");
+                                    $("#submit").removeClass("disabled");
+                                    $("#submit-spinner").hide();
                                     return;
                                 },
                                 "json"
                             ).fail(function() {
                                 alert("There was an error submitting your entry. Please refresh your page and try again.");
+                                $("#submit").removeClass("disabled");
+                                $("#submit-spinner").hide();
                             });
                         }
                     }
-
                     return;
                 }
             });
@@ -372,6 +381,10 @@
 
         <div id="validation-errors" class="validationErrors">The form is not yet complete. Check through the form for error messages</div>
         <div id="submit" class="submit btn btn-sm btn-default">Submit</div>
+        <span id="submit-spinner" style="display:none;">
+            <img src="<c:url value='/resources/img/spinner.gif'/>"></img>
+        </span>
+
         <p><div id="submit-comments"></div></p>
 
     </form>
