@@ -269,7 +269,7 @@
             try {
                 var entryId = $.urlParam("entryId");
                 var revisionId = $.urlParam("revisionId");
-                var requestUrl = "${pageContext.request.contextPath}" + "/item/" + entryId + "?revisionId=" + revisionId;
+                var requestUrl = "${pageContext.request.contextPath}" + "/add/item/" + entryId + "?revisionId=" + revisionId;
                 $.getJSON(requestUrl, function(data) {
                    var entryData = data['entry'];
                    $("input").each(function( index ) {
