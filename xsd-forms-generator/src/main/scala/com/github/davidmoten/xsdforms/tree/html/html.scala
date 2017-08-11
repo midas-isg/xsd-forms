@@ -93,10 +93,11 @@ private[tree] class Html {
     name: String, value: Option[String] = None,
     checked: Option[Boolean] = None,
     number: Option[Int] = None,
-    typ: Option[String]) =
+    typ: Option[String],
+    path: Option[String] = None) =
     element(name = Input, id = id, classes = classes, checked = checked,
       content = content, value = value,
-      nameAttr = Some(name), typ = typ, numberAttr = number)
+      nameAttr = Some(name), typ = typ, numberAttr = number, path = path)
 
   private def classNames(classes: List[String]) =
     if (classes.length == 0)
@@ -114,7 +115,8 @@ private[tree] class Html {
     enabledAttr: Option[String] = None,
     forAttr: Option[String] = None,
     numberAttr: Option[Int] = None,
-    typ: Option[String] = None): Html = {
+    typ: Option[String] = None,
+    path: Option[String] = None): Html = {
     val attributes =
       id.map((Id, _)) ++
         classNames(classes).map((Class -> _)) ++
@@ -123,6 +125,7 @@ private[tree] class Html {
         enabledAttr.map((Enabled, _)) ++
         forAttr.map(("for", _)) ++
         typ.map(("type", _)) ++
+        path.map(("path", _)) ++
         checked.map(x => (Checked, x.toString)) ++
         numberAttr.map(x => ("number", x.toString))
     elementBase(name, attributes.toMap, content)
