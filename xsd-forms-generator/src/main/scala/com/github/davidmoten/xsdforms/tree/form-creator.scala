@@ -512,8 +512,6 @@ private[xsdforms] class FormCreator(override val options: Options,
       }
     }
 
-    println(pathWithInstances)
-
     addInput(e, qn, r, instances, pathWithInstances)
 
     addDescription(e)
