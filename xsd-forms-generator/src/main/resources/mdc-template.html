@@ -320,15 +320,7 @@
     </script>
 
 </head>
-<c:choose>
-    <c:when test="${preview eq true}">
-        <myTags:header pageTitle="MIDAS Digital Commons" loggedIn="true" preview="true" wantCollapse="true" iframe="false" addEntry="true"></myTags:header>
-    </c:when>
-    <c:otherwise>
-        <myTags:header pageTitle="MIDAS Digital Commons" loggedIn="true" preview="false" wantCollapse="true" iframe="false" addEntry="true"></myTags:header>
-
-    </c:otherwise>
-</c:choose>
+<myTags:header pageTitle="MIDAS Digital Commons" loggedIn="${loggedIn}"></myTags:header>
 <body>
 <div class="form col-xs-12 margin-bottom-30">
     <!--HEADER-->
