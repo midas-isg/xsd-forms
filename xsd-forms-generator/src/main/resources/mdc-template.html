@@ -264,8 +264,9 @@
             //EXTRA_SCRIPT
             $.urlParam = function(name){
                 var results = new RegExp('[\?&]' + name + '=([^&#]*)').exec(window.location.href);
-                return results[1] || 0;
+                return results[1] || null;
             };
+
             try {
                 var entryId = $.urlParam("entryId");
                 var revisionId = $.urlParam("revisionId");
@@ -302,6 +303,12 @@
                     $('#category-div').find('.item-error').hide();
                 });
 
+                var categoryId = $.urlParam("categoryId");
+                console.log(categoryId);
+                if(categoryId !== undefined && categoryId !== null) {
+                    $('#category-div').find(".item-input-text").val(categoryId);
+                }
+
                 var xsdFormsPath = location.origin + "${pageContext.request.contextPath}" + "/resources/xsd-forms/";
                 var addEntryPath = location.origin + "${pageContext.request.contextPath}" + "/add-entry";
 
@@ -317,6 +324,9 @@
                     $("#submit").addClass("disabled");
                     $("#submit-spinner").show();
 
+                    var entryId = $.urlParam("entryId");
+                    var revisionId = $.urlParam("revisionId");
+
                     var xmlString;
 
                     var hasCategory = true;
@@ -331,7 +341,9 @@
                             $.post(
                                 addEntryPath + getQueryParamString(),
                                 {'xmlString': xmlString,
-                                'categoryValue': categoryValue},
+                                'categoryValue': categoryValue,
+                                'entryId': entryId,
+                                'revisionId': revisionId},
                                 function onSuccess(data, status, xhr) {
                                     console.info(data);
                                     console.info(status);
