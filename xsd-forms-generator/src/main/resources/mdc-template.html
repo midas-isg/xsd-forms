@@ -279,7 +279,11 @@
                            try {
                                var value = eval("entryData" + path);
                                if(value != null) {
-                                   $(this).val(value);
+                                   if($(this).attr("type") === "checkbox") {
+                                       $(this).prop('checked', value);
+                                   } else {
+                                       $(this).val(value);
+                                   }
 
                                    if($(this).is(":hidden")) {
                                        $(this).parents().show();
