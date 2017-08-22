@@ -264,6 +264,9 @@
             //EXTRA_SCRIPT
             $.urlParam = function(name){
                 var results = new RegExp('[\?&]' + name + '=([^&#]*)').exec(window.location.href);
+                if(results === null) {
+                    return null;
+                }
                 return results[1] || null;
             };
 
@@ -355,6 +358,7 @@
                                     alert("An email request has been sent to the administrator. Approval is pending.");
                                     $("#submit").removeClass("disabled");
                                     $("#submit-spinner").hide();
+                                    window.location = "${pageContext.request.contextPath}/";
                                     return;
                                 },
                                 "json"
