@@ -135,7 +135,7 @@ object Generator {
     val visitor = new TreeCreatingVisitor()
 
     new SchemaTraversor(schemaXb, rootElement, visitor).traverse
-    println("tree:\n" + visitor)
+//    println("tree:\n" + visitor)
 
     new FormCreator(Options(ns, Prefix(idPrefix)),
       visitor.configuration,
